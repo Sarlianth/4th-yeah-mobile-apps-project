@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace AzureChatr
+namespace myChat
 {
     class ChatItem
     {
