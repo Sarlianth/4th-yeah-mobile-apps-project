@@ -58,6 +58,7 @@
             <AppBarButton Label="send" Icon="Send"/>
             <AppBarButton Label="refresh" Icon="Refresh"/>
             <AppBarButton Label="feedback" Icon="Comment"/>
+            <AppBarButton Label="login" Name="myButton" Icon="Send" Click="ButtonLogin_Click"/>
 
             <CommandBar.SecondaryCommands>
                 <AppBarButton Label="about this app" Icon="Important"/>

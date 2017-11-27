@@ -30,6 +30,20 @@ namespace myChat
             ConfigSecrets.AzureMobileServicesURI
         );
 
+        protected override void OnActivated(IActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.Protocol)
+            {
+                ProtocolActivatedEventArgs protocolArgs = args as ProtocolActivatedEventArgs;
+                Frame content = Window.Current.Content as Frame;
+                if (content.Content.GetType() == typeof(MainPage))
+                {
+                    content.Navigate(typeof(MainPage), protocolArgs.Uri);
+                }
+            }
+            Window.Current.Activate();
+            base.OnActivated(args);
+        }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
