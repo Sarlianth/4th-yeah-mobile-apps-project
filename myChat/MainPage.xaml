@@ -47,7 +47,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Name="TextInput" IsEnabled="False" TextWrapping="Wrap" PlaceholderText="please log in to chat" MinWidth="150" Margin="5"/>
+                    <TextBox Grid.Column="0" Name="TextInput" KeyDown="TextInput_KeyDown" IsEnabled="False" TextWrapping="Wrap" PlaceholderText="please log in to chat" MinWidth="150" Margin="5"/>
                     <AppBarButton Grid.Column="1" x:Name="btnWinSend" IsEnabled="False" Visibility="Collapsed" Label="send" Icon="Send"/>
                 </Grid>
             </Grid>

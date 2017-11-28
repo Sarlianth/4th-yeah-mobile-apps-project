@@ -10,7 +10,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Microsoft.WindowsAzure.Messaging;
-using Windows.UI.Xaml.Input;
 using Windows.Data.Xml.Dom;
 using winsdkfb;
 using winsdkfb.Graph;
@@ -34,7 +33,7 @@ namespace myChat
 
         //string lastChatline = "";
 
-        DispatcherTimer dispatcherTimer;
+        DispatcherTimer dispatcherTimer = new DispatcherTimer();
 
         public MainPage()
         {
@@ -59,7 +58,6 @@ namespace myChat
         public void DispatcherTimerSetup()
         {
             RefreshChatItems();
-            dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += dispatcherTimer_TickAsync;
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
@@ -165,7 +163,11 @@ namespace myChat
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
             await UpdateStatus("You have successfully logged out", false);
-            dispatcherTimer.Stop();
+            if (dispatcherTimer.IsEnabled)
+            {
+                dispatcherTimer.Stop();
+            }
+
             await SetUIState(false);
         }
 
@@ -332,13 +334,6 @@ namespace myChat
             SendChatLine();
         }
 
-        private void ButtonSend_KeyUp(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                SendChatLine();
-            }
-        }
 
         // Prepares the chat item to be sent to the cloud
         private void SendChatLine()
@@ -398,6 +393,14 @@ namespace myChat
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
             Logout();
+        }
+
+        private void TextInput_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                SendChatLine();
+            }
         }
     }
 }
