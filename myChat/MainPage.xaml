@@ -55,8 +55,8 @@
     </Grid>
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Label="send" Icon="Send"/>
-            <AppBarButton Label="refresh" Icon="Refresh"/>
+            <AppBarButton Label="send" Icon="Send" Click="ButtonSend_Click"/>
+            <AppBarButton Label="refresh" Icon="Refresh" Click="ButtonRefresh_Click"/>
             <AppBarButton Label="feedback" Icon="Comment"/>
             <AppBarButton Label="login" Name="myButton" Icon="Send" Click="ButtonLogin_Click"/>
 
