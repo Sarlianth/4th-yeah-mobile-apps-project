@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Media;
 using Microsoft.WindowsAzure.Messaging;
 using Windows.UI.Xaml.Input;
 using Windows.Data.Xml.Dom;
+using winsdkfb;
+using winsdkfb.Graph;
+using System.Collections.Generic;
 
 namespace myChat
 {
@@ -22,12 +25,16 @@ namespace myChat
         private string userUniqueID;
         private bool isLoggedin = false;
 
+        int lastCount = 0;
+
         private MobileServiceCollection<ChatItem, ChatItem> items;
         private IMobileServiceTable<ChatItem> chatTable = App.MobileService.GetTable<ChatItem>();
 
         public PushNotificationChannel PushChannel;
 
-        string lastChatline = "";
+        //string lastChatline = "";
+
+        DispatcherTimer dispatcherTimer;
 
         public MainPage()
         {
@@ -35,19 +42,77 @@ namespace myChat
             
             if (!CheckForInternetAccess())
             {
-                string msg1 = "An Internet connection is required for this app and it appears that you are not connected." + Environment.NewLine + Environment.NewLine;
-                string msg2 = "Make sure that you have an active Internet connection and try again.";
                 UpdateStatus("You are not connected to the Internet", true);
-
-                new MessageDialog(msg1 + msg2, "No Internet").ShowAsync();
             }
             else
             {
                 InitNotificationsAsync();
+                //Prompt user to login
+                prompt();
             }
         }
 
-        private async void ButtonLogin_Click(object sender, RoutedEventArgs e)
+        public async void prompt()
+        {
+            await AuthenticateAsync();
+        }
+        public void DispatcherTimerSetup()
+        {
+            RefreshChatItems();
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += dispatcherTimer_TickAsync;
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+        }
+
+        private async void dispatcherTimer_TickAsync(object sender, object e)
+        {
+            if (isLoggedin)
+            {
+                // The max number of items to retrieve from Azure Mobile Services
+                int n = 50;
+
+                items = await chatTable.Take(n).ToCollectionAsync();
+                 // refreshes the entries in the list view by querying the ChatItems table.
+               
+                if (lastCount == items.Count)
+                {
+                    UpdateStatus("Messages: "+items.Count, false);
+                }
+                else if (items.Count >= 49)
+                {
+                    dispatcherTimer.Stop();
+                    ListItems.IsEnabled = false;
+                    TextInput.IsEnabled = false;
+                    prgBusy.IsActive = true;
+                    var dbReviewItems = await chatTable.ToListAsync();
+                    foreach (var item in dbReviewItems)
+                    {
+                        await chatTable.DeleteAsync(item);
+                    }
+
+                    ListItems.IsEnabled = true;
+                    TextInput.IsEnabled = true;
+                    prgBusy.IsActive = false;
+                    dispatcherTimer.Start();
+                }
+                else
+                {
+                    RefreshChatItems();
+                }
+            }
+        }
+
+        public async Task deleteEntitiesAsync()
+        {
+            dispatcherTimer.Stop();
+            var dbReviewItems = await chatTable.ToListAsync();
+            foreach (var item in dbReviewItems)
+                await chatTable.DeleteAsync(item);
+            dispatcherTimer.Start();
+        }
+
+        private async void Login_Click(object sender, RoutedEventArgs e)
         {
             await AuthenticateAsync();
         }
@@ -57,73 +122,52 @@ namespace myChat
         private async Task AuthenticateAsync()
         {
             prgBusy.IsActive = true;
+            FBSession sess = FBSession.ActiveSession;
+            sess.FBAppId = ConfigSecrets.FacebookAppID;
+            sess.WinAppId = ConfigSecrets.WindowsStoreID;
 
-            userUniqueID = "12345";
-            isLoggedin = true;
-            await SetUIState(true);
+            List<String> permissionList = new List<String>();
+            permissionList.Add("public_profile");
+            FBPermissions permissions = new FBPermissions(permissionList);
 
-            var message = string.Format("Logged in as {0}", userUniqueID);
-            TextUserName.Text = message;
+            // Login to Facebook
+            FBResult result = await sess.LoginAsync(permissions);
 
-            prgBusy.IsActive = false;
+            FBUser user = sess.User;
 
-            /*
-             * // Define a method that performs the authentication process
-        // using a Facebook sign-in. 
-        private async Task AuthenticateAsync()
-        {
-            prgBusy.IsActive = true;
-            Exception exception = null;
-
-            try
+            if (result.Succeeded)
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                if (sess.LoggedIn)
                 {
-                    TextUserName.Text = "Please wait while we log you in...";
-                });
-
-                // Sign-in using Facebook authentication.
-                user = await App.MobileService.LoginAsync(MobileServiceAuthenticationProvider.Facebook, "publicchat");
-                if (user.UserId != null)
-                {
-                    userUniqueID = user.UserId;
+                    userUniqueID = user.Name;
                     isLoggedin = true;
-                    SetUIState(true);
+                    await SetUIState(true);
 
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        var message = string.Format("Logged in as {0}", userUniqueID);
-                        TextUserName.Text = message;
-                    });
+                    var message = string.Format("Logged in as {0}", userUniqueID);
+                    TextUserName.Text = message;
+
+                    DispatcherTimerSetup();                  
                 }
                 else
                 {
-                    var message = string.Format("Error");
-                    TextUserName.Text = message;
+                    await UpdateStatus("Please login to chat with others", true);
                 }
-               
             }
-            catch (Exception ex)
+            else
             {
-                exception = ex;
-            }
-
-            if (exception != null)
-            {
-                UpdateStatus("Something went wrong when trying to log you in.", true);
-                string msg1 = "An error has occurred while trying to sign you in." + Environment.NewLine + Environment.NewLine;
-                string msg2 = "Make sure that you have an active Internet connection and try again.";
-
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    new MessageDialog(msg1 + msg2, "Authentication Error").ShowAsync();
-                });
+                await UpdateStatus("Please login to chat with others", false);
             }
             prgBusy.IsActive = false;
-            */
-
         }
 
+        async void Logout()
+        {
+            FBSession sess = FBSession.ActiveSession;
+            await sess.LogoutAsync();
+            await UpdateStatus("You have successfully logged out", false);
+            dispatcherTimer.Stop();
+            await SetUIState(false);
+        }
 
         // Inserts a new chat item to the conversation by posting it in the Azure Mobile 
         // Services table, and posting it in the application's chat window
@@ -147,7 +191,7 @@ namespace myChat
         }
 
         /* Adapted from https://docs.microsoft.com/en-us/azure/notification-hubs/notification-hubs-windows-store-dotnet-get-started-wns-push-notification */
-            private async void InitNotificationsAsync()
+        private async void InitNotificationsAsync()
         {
             Exception exception = null;
 
@@ -227,13 +271,10 @@ namespace myChat
                 try
                 {
                     // The max number of items to retrieve from Azure Mobile Services
-                    int n = 20;
-
+                    int n = 50;
                     // refreshes the entries in the list view by querying the ChatItems table.
                     items = await chatTable.OrderByDescending(chatitem => chatitem.TimeStamp).Take(n).ToCollectionAsync();
                     // reverse the order again so the last item is always at the bottom of the list, not the top
-
-                    // Since there cannot be more than 50 items, this is not a bad technique
                     if (items.Count > 0)
                     {
                         if (items.Count < n)
@@ -264,14 +305,13 @@ namespace myChat
                 else
                 {
                     ListItems.ItemsSource = items;
+                    lastCount = items.Count;
                 }
             }
             prgBusy.IsActive = false;
         }
 
-        // Forces the chat window to scroll to the bottom. This uses a special
-        // extension method on the ListView control
-
+        // Forces the chat window to scroll to the bottom. 
         private void ScrollDown()
         {
             ListItems.SelectedIndex = ListItems.Items.Count - 1;
@@ -292,7 +332,6 @@ namespace myChat
             SendChatLine();
         }
 
-        // Event handler for the Send App Bar Button
         private void ButtonSend_KeyUp(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
@@ -308,10 +347,10 @@ namespace myChat
             if (isLoggedin && msg.Length > 0)
             {
                 var chatItem = new ChatItem { Text = msg, UserName = String.Format("{0}", userUniqueID), TimeStamp = DateTime.UtcNow };
-                lastChatline = chatItem.Text;
+                //lastChatline = chatItem.Text;
                 InsertChatItem(chatItem);
                 TextInput.Text = "";
-                RefreshChatItems();
+                //RefreshChatItems();
             }
         }
 
@@ -354,6 +393,11 @@ namespace myChat
                     notificationContent = e.RawNotification.Content;
                     break;
             }
+        }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            Logout();
         }
     }
 }

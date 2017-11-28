@@ -145,6 +145,9 @@
     <PackageReference Include="WindowsAzure.Messaging.Managed">
       <Version>0.1.7.9</Version>
     </PackageReference>
+    <PackageReference Include="winsdkfb">
+      <Version>0.14.20170809.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

@@ -22,7 +22,7 @@
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.protocol">
-          <uap:Protocol Name="publicchat">
+          <uap:Protocol Name="g00309646">
             <uap:DisplayName>publicchat</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
