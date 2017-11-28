@@ -163,10 +163,6 @@ namespace myChat
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
             await UpdateStatus("You have successfully logged out", false);
-            if (dispatcherTimer.IsEnabled)
-            {
-                dispatcherTimer.Stop();
-            }
 
             await SetUIState(false);
         }
@@ -184,11 +180,29 @@ namespace myChat
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                if (isEnabled)
+                {
+                    Login.Visibility = Visibility.Collapsed;
+                    Lgout.Visibility = Visibility.Visible;
+                    ListItems.Visibility = Visibility.Visible;
+                }
+                else if (!isEnabled)
+                {
+                    Login.Visibility = Visibility.Visible;
+                    Lgout.Visibility = Visibility.Collapsed;
+                    ListItems.Visibility = Visibility.Collapsed;
+                }
+                if (dispatcherTimer.IsEnabled)
+                {
+                    dispatcherTimer.Stop();
+                }
                 TextInput.PlaceholderText = (isEnabled) ? "type your message here.." : "please login to chat";
                 TextInput.IsEnabled = isEnabled;
                 btnWinSend.IsEnabled = isEnabled;
                 ListItems.Focus(FocusState.Programmatic);
                 RefreshChatItems();
+                
+                TextUserName.Text = "Goodbye, " + userUniqueID;
             });
         }
 
@@ -320,20 +334,11 @@ namespace myChat
             ListItems.ScrollIntoView(ListItems.SelectedItem);
         }
 
-        // Event handler for the refresh app bar button.
-        // Useful for scenarios where some notifications might have been lost
-        // and the user wants to refresh the screen
-        private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshChatItems();
-        }
-
         // Event handler for the Send App Bar Button
         private void ButtonSend_Click(object sender, RoutedEventArgs e)
         {
             SendChatLine();
         }
-
 
         // Prepares the chat item to be sent to the cloud
         private void SendChatLine()

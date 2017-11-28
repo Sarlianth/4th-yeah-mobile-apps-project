@@ -16,16 +16,30 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="0,0,0,0">
-                <StackPanel>
-                    <TextBlock Foreground="#0094ff" FontFamily="Segoe UI Light" Margin="0,0,0,6">4th YEAR MOBILE APPLICATION PROJECT</TextBlock>
-                    <TextBlock Foreground="Gray" FontFamily="Segoe UI Light" FontSize="45" >Public Chat</TextBlock>
-                </StackPanel>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.8*"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Foreground="Gray" FontFamily="Segoe UI Light" FontSize="45" Grid.Column="0">GMIT Public Chat</TextBlock>
+
+                <Button Name="Login" Click="Login_Click" Background="Transparent" Grid.Column="1" Visibility="Visible" >
+                    <StackPanel HorizontalAlignment="Right">
+                        <Image Source="Assets/icon/login.png" />
+                    </StackPanel>
+                </Button>
+                <Button Name="Lgout" Click="Logout_Click" Background="Transparent" Grid.Column="1" Visibility="Collapsed">
+                    <StackPanel HorizontalAlignment="Right">
+                        <Image Source="Assets/icon/logout.png" />
+                    </StackPanel>
+                </Button>
             </Grid>
 
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
@@ -48,18 +62,11 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Column="0" Name="TextInput" KeyDown="TextInput_KeyDown" IsEnabled="False" TextWrapping="Wrap" PlaceholderText="please log in to chat" MinWidth="150" Margin="5"/>
-                    <AppBarButton Grid.Column="1" x:Name="btnWinSend" IsEnabled="False" Visibility="Collapsed" Label="send" Icon="Send"/>
+                    <AppBarButton Grid.Column="1" x:Name="btnWinSend" IsEnabled="False" Visibility="Visible" Label="send" Icon="Send" Click="ButtonSend_Click"/>
                 </Grid>
             </Grid>
         </Grid>
     </Grid>
-    <Page.BottomAppBar>
-        <CommandBar>
-            <AppBarButton Label="send" Icon="Send" Click="ButtonSend_Click"/>
-            <AppBarButton Label="refresh" Icon="Refresh" Click="ButtonRefresh_Click"/>
-            <AppBarButton Label="login" Name="myButton" Icon="Delete" Click="Login_Click"/>
-            <AppBarButton Label="logout" Icon="Delete" Click="Logout_Click"/>
-        </CommandBar>
-    </Page.BottomAppBar>
+
 
 </Page>
