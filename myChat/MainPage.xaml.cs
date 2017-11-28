@@ -19,20 +19,12 @@ namespace myChat
 {
     public sealed partial class MainPage : Page
     {
-        // Define a member variable for storing the signed-in user. 
-        private MobileServiceUser user;
         private string userUniqueID;
         private bool isLoggedin = false;
-
         int lastCount = 0;
-
         private MobileServiceCollection<ChatItem, ChatItem> items;
         private IMobileServiceTable<ChatItem> chatTable = App.MobileService.GetTable<ChatItem>();
-
         public PushNotificationChannel PushChannel;
-
-        //string lastChatline = "";
-
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
 
         public MainPage()
