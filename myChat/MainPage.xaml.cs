@@ -37,6 +37,7 @@ namespace myChat
             }
             else
             {
+                UpdateStatus("You are successfully connected to the Internet", false);
                 InitNotificationsAsync();
                 //Prompt user to login
                 prompt();
@@ -67,7 +68,7 @@ namespace myChat
                
                 if (lastCount == items.Count)
                 {
-                    UpdateStatus("Messages: "+items.Count, false);
+                    //UpdateStatus("Messages: "+items.Count, false);
                 }
                 else if (items.Count >= 49)
                 {
@@ -154,7 +155,6 @@ namespace myChat
         {
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
-            await UpdateStatus("You have successfully logged out", false);
 
             await SetUIState(false);
         }
@@ -218,7 +218,7 @@ namespace myChat
                     //dialog.Commands.Add(new UICommand("OK"));
                     //await dialog.ShowAsync();
                     // Update status - inform user that the channel is ready
-                    await UpdateStatus("Chat channel is ready.", false);
+                    // await UpdateStatus("Chat channel is ready.", false);
 
                     PushChannel = channel;
                     PushChannel.PushNotificationReceived += OnPushNotification;
@@ -249,7 +249,6 @@ namespace myChat
             if (NetworkInterface.GetIsNetworkAvailable())
             {
                 return true;
-                RefreshChatItems();
             }
             else
             {
