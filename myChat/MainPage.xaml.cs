@@ -14,6 +14,8 @@ using Windows.Data.Xml.Dom;
 using winsdkfb;
 using winsdkfb.Graph;
 using System.Collections.Generic;
+using System.Linq;
+using Windows.ApplicationModel;
 
 namespace myChat
 {
@@ -65,7 +67,7 @@ namespace myChat
 
                 items = await chatTable.Take(n).ToCollectionAsync();
                  // refreshes the entries in the list view by querying the ChatItems table.
-               
+
                 if (lastCount == items.Count)
                 {
                     //UpdateStatus("Messages: "+items.Count, false);
@@ -137,6 +139,7 @@ namespace myChat
                     var message = string.Format("Logged in as {0}", userUniqueID);
                     TextUserName.Text = message;
 
+                    ListUsers.Items.Add(userUniqueID);
                     DispatcherTimerSetup();                  
                 }
                 else
@@ -155,6 +158,7 @@ namespace myChat
         {
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
+            ListUsers.Items.Remove(userUniqueID);
 
             await SetUIState(false);
         }
@@ -313,6 +317,7 @@ namespace myChat
                 {
                     ListItems.ItemsSource = items;
                     lastCount = items.Count;
+                    ScrollDown();
                 }
             }
             prgBusy.IsActive = false;
@@ -321,8 +326,9 @@ namespace myChat
         // Forces the chat window to scroll to the bottom. 
         private void ScrollDown()
         {
-            ListItems.SelectedIndex = ListItems.Items.Count - 1;
-            ListItems.ScrollIntoView(ListItems.SelectedItem);
+            //ListItems.SelectedIndex = ListItems.Items.Count - 1;
+            ListItems.ScrollIntoView(ListItems.Items.LastOrDefault());
+
         }
 
         // Event handler for the Send App Bar Button

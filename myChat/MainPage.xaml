@@ -20,8 +20,8 @@
                     <ColumnDefinition Width="0.8*"/>
                     <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
-                
-                <TextBlock Foreground="DodgerBlue" FontFamily="Segoe UI Light" FontSize="40" Grid.Column="0">GMIT Public Chat</TextBlock>
+
+                <TextBlock Foreground="DodgerBlue" FontFamily="Segoe UI Light" FontSize="40" Grid.Column="0">Student Chat</TextBlock>
 
                 <Button Name="Login" Click="Login_Click" Background="Transparent" Grid.Column="1" Visibility="Visible" >
                     <StackPanel HorizontalAlignment="Right">
@@ -42,11 +42,15 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="0">
                     <TextBlock Name="StatusMsg" Margin="5" FontSize="14">Initializing chat...</TextBlock>
                     <TextBlock Name="TextUserName" Text="You are currently not logged in." Grid.Column="0" FontSize="14" MinWidth="150" Margin="5"/>
                 </StackPanel>
-                <ListView Grid.Row="1" Name="ListItems" Margin="5" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsTabStop="True" TabIndex="0">
+                <ListView Grid.Row="1" Grid.Column="0" Name="ListItems" Margin="5" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsTabStop="True" TabIndex="0">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel HorizontalAlignment="Left">
@@ -58,6 +62,8 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                <TextBlock Name="OnlineUsers" Grid.Row="1" Grid.Column="1" Text="Users online" Foreground="#0094ff" Margin="15,0,5,5" FontSize="14" TextWrapping="Wrap"/>
+                <ListView Grid.Row="1" Grid.Column="1" Name="ListUsers" Margin="0,20,0,0" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsTabStop="True" TabIndex="0"/>
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
