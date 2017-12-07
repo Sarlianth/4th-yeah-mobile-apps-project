@@ -400,6 +400,8 @@ namespace myChat
         {
             String notificationContent = String.Empty;
 
+            // UpdateStatus("New notification", true);
+
             e.Cancel = true;
 
             switch (e.NotificationType)
@@ -418,15 +420,13 @@ namespace myChat
 
                     // Extract the relevant chat item data from the toast notification payload
                     XmlNodeList toastTextAttributes = toastXml.GetElementsByTagName("text");
-                    string username = toastTextAttributes[0].InnerText;
-                    string chatline = toastTextAttributes[1].InnerText;
-                    string chatdatetime = toastTextAttributes[2].InnerText;
+                    //string username = toastTextAttributes[0].InnerText;
+                    //string chatline = toastTextAttributes[1].InnerText;
+                    //string chatdatetime = toastTextAttributes[2].InnerText;
 
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
                     {
-                        var chatItem = new ChatItem { Text = chatline, UserName = username };
-                        items.Add(chatItem);
-                        ScrollDown();
+                        RefreshChatItems();
                     });
 
                     break;
