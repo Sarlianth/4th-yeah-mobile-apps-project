@@ -16,6 +16,8 @@ using winsdkfb.Graph;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel;
+using System.Net;
+using System.Net.Sockets;
 
 namespace myChat
 {
@@ -32,7 +34,8 @@ namespace myChat
 
         public PushNotificationChannel PushChannel;
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
-        private Random randomID = new Random();
+        private static Random rnd = new Random();
+        private int randomID = rnd.Next();
 
 
         public MainPage()
@@ -145,7 +148,7 @@ namespace myChat
                     var message = string.Format("Logged in as {0}", userUniqueID);
                     TextUserName.Text = message;
 
-                    insertUser(userUniqueID, randomID);
+                    insertUser(userUniqueID);
                     
                     DispatcherTimerSetup();                  
                 }
@@ -166,15 +169,15 @@ namespace myChat
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
 
-            var onlineUser = new OnlineUsers { Id = userUniqueID + "_id", username = String.Format("{0}", userUniqueID) };
+            var onlineUser = new OnlineUsers { Id = "user_" + userUniqueID + "_id_" + randomID, username = String.Format("{0}", userUniqueID) };
             await usersTable.DeleteAsync(onlineUser);
 
             await SetUIState(false);
         }
 
-        async void insertUser(string name, Random ID)
+        async void insertUser(string name)
         {
-            var onlineUser = new OnlineUsers { Id = userUniqueID+"_id", username = String.Format("{0}", name) };
+            var onlineUser = new OnlineUsers { Id = "user_" + userUniqueID +"_id_" + randomID, username = String.Format("{0}", name) };
             await usersTable.InsertAsync(onlineUser);
             var onlineUsers = await usersTable.Take(100).ToCollectionAsync();
             ListUsers.ItemsSource = onlineUsers;
