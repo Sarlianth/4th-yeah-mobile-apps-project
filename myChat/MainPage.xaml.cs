@@ -29,23 +29,22 @@ namespace myChat
     {
         private string userUniqueID;
         private bool isLoggedin = false;
-        int lastCount = 0;
+        //int lastCount = 0;
         private MobileServiceCollection<ChatItem, ChatItem> items;
         private IMobileServiceTable<ChatItem> chatTable = App.MobileService.GetTable<ChatItem>();
 
-        private MobileServiceCollection<OnlineUsers, OnlineUsers> users;
         private IMobileServiceTable<OnlineUsers> usersTable = App.MobileService.GetTable<OnlineUsers>();
 
         public PushNotificationChannel PushChannel;
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        //DispatcherTimer dispatcherTimer = new DispatcherTimer();
         private static Random rnd = new Random();
         private int randomID = rnd.Next();
-
 
         public MainPage()
         {
             this.InitializeComponent();
-            
+            Application.Current.Suspending += new SuspendingEventHandler(App_Suspending);
+
             if (!CheckForInternetAccess())
             {
                 UpdateStatus("You are not connected to the Internet", true);
@@ -59,63 +58,18 @@ namespace myChat
             }
         }
 
+        async void App_Suspending(
+        Object sender,
+        Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            await new MessageDialog("Suspending").ShowAsync();
+            var onlineUser = new OnlineUsers { Id = "user_" + userUniqueID + "_id_" + randomID, username = String.Format("{0}", userUniqueID) };
+            await usersTable.DeleteAsync(onlineUser);
+        }
+
         public async void prompt()
         {
             await AuthenticateAsync();
-        }
-        public void DispatcherTimerSetup()
-        {
-            RefreshChatItems();
-            dispatcherTimer.Tick += dispatcherTimer_TickAsync;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Start();
-        }
-
-        private async void dispatcherTimer_TickAsync(object sender, object e)
-        {
-            if (isLoggedin)
-            {
-                // The max number of items to retrieve from Azure Mobile Services
-                int n = 50;
-
-                items = await chatTable.Take(n).ToCollectionAsync();
-                 // refreshes the entries in the list view by querying the ChatItems table.
-
-                if (lastCount == items.Count)
-                {
-                    //UpdateStatus("Messages: "+items.Count, false);
-                }
-                else if (items.Count >= 49)
-                {
-                    dispatcherTimer.Stop();
-                    ListItems.IsEnabled = false;
-                    TextInput.IsEnabled = false;
-                    prgBusy.IsActive = true;
-                    var dbReviewItems = await chatTable.ToListAsync();
-                    foreach (var item in dbReviewItems)
-                    {
-                        await chatTable.DeleteAsync(item);
-                    }
-
-                    ListItems.IsEnabled = true;
-                    TextInput.IsEnabled = true;
-                    prgBusy.IsActive = false;
-                    dispatcherTimer.Start();
-                }
-                else
-                {
-                    RefreshChatItems();
-                }
-            }
-        }
-
-        public async Task deleteEntitiesAsync()
-        {
-            dispatcherTimer.Stop();
-            var dbReviewItems = await chatTable.ToListAsync();
-            foreach (var item in dbReviewItems)
-                await chatTable.DeleteAsync(item);
-            dispatcherTimer.Start();
         }
 
         private async void Login_Click(object sender, RoutedEventArgs e)
@@ -153,8 +107,6 @@ namespace myChat
                     TextUserName.Text = message;
 
                     insertUser(userUniqueID);
-                    
-                    DispatcherTimerSetup();                  
                 }
                 else
                 {
@@ -214,10 +166,7 @@ namespace myChat
                     ListItems.Visibility = Visibility.Collapsed;
                     ListUsers.Visibility = Visibility.Collapsed;
                 }
-                if (dispatcherTimer.IsEnabled)
-                {
-                    dispatcherTimer.Stop();
-                }
+
                 TextInput.PlaceholderText = (isEnabled) ? "type your message here.." : "please login to chat";
                 TextInput.IsEnabled = isEnabled;
                 btnWinSend.IsEnabled = isEnabled;
@@ -243,13 +192,6 @@ namespace myChat
                 // Display id to confirm its successfull
                 if (result.RegistrationId != null)
                 {
-                    // Dialog used for debugging 
-                    //var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
-                    //dialog.Commands.Add(new UICommand("OK"));
-                    //await dialog.ShowAsync();
-                    // Update status - inform user that the channel is ready
-                    // await UpdateStatus("Chat channel is ready.", false);
-
                     PushChannel = channel;
                     PushChannel.PushNotificationReceived += OnPushNotification;
                 }
@@ -308,7 +250,7 @@ namespace myChat
                 try
                 {
                     // The max number of items to retrieve from Azure Mobile Services
-                    int n = 50;
+                    int n = 30;
                     // refreshes the entries in the list view by querying the ChatItems table.
                     items = await chatTable.OrderByDescending(chatitem => chatitem.TimeStamp).Take(n).ToCollectionAsync();
                     // reverse the order again so the last item is always at the bottom of the list, not the top
@@ -342,7 +284,7 @@ namespace myChat
                 else
                 {
                     ListItems.ItemsSource = items;
-                    lastCount = items.Count;
+                    //lastCount = items.Count;
                     ScrollDown();
                 }
             }
