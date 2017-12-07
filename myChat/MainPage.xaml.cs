@@ -15,12 +15,6 @@ using winsdkfb;
 using winsdkfb.Graph;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.ApplicationModel;
-using System.Net;
-using System.Net.Sockets;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Globalization;
 using System.Net.Http;
 
 namespace myChat
@@ -62,7 +56,7 @@ namespace myChat
         Object sender,
         Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            await new MessageDialog("Suspending").ShowAsync();
+            // await new MessageDialog("Suspending").ShowAsync();
             var onlineUser = new OnlineUsers { Id = "user_" + userUniqueID + "_id_" + randomID, username = String.Format("{0}", userUniqueID) };
             await usersTable.DeleteAsync(onlineUser);
         }
@@ -135,6 +129,11 @@ namespace myChat
         {
             var onlineUser = new OnlineUsers { Id = "user_" + userUniqueID +"_id_" + randomID, username = String.Format("{0}", name) };
             await usersTable.InsertAsync(onlineUser);
+            updateUsers();
+        }
+
+        async void updateUsers()
+        {
             var onlineUsers = await usersTable.Take(100).ToCollectionAsync();
             ListUsers.ItemsSource = onlineUsers;
         }
@@ -369,6 +368,7 @@ namespace myChat
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
                     {
                         RefreshChatItems();
+                        updateUsers();
                     });
 
                     break;
