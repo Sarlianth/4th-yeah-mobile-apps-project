@@ -26,8 +26,14 @@ namespace myChat
         int lastCount = 0;
         private MobileServiceCollection<ChatItem, ChatItem> items;
         private IMobileServiceTable<ChatItem> chatTable = App.MobileService.GetTable<ChatItem>();
+
+        private MobileServiceCollection<OnlineUsers, OnlineUsers> users;
+        private IMobileServiceTable<OnlineUsers> usersTable = App.MobileService.GetTable<OnlineUsers>();
+
         public PushNotificationChannel PushChannel;
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        private Random randomID = new Random();
+
 
         public MainPage()
         {
@@ -139,7 +145,8 @@ namespace myChat
                     var message = string.Format("Logged in as {0}", userUniqueID);
                     TextUserName.Text = message;
 
-                    ListUsers.Items.Add(userUniqueID);
+                    insertUser(userUniqueID, randomID);
+                    
                     DispatcherTimerSetup();                  
                 }
                 else
@@ -158,9 +165,19 @@ namespace myChat
         {
             FBSession sess = FBSession.ActiveSession;
             await sess.LogoutAsync();
-            ListUsers.Items.Remove(userUniqueID);
+
+            var onlineUser = new OnlineUsers { Id = userUniqueID + "_id", username = String.Format("{0}", userUniqueID) };
+            await usersTable.DeleteAsync(onlineUser);
 
             await SetUIState(false);
+        }
+
+        async void insertUser(string name, Random ID)
+        {
+            var onlineUser = new OnlineUsers { Id = userUniqueID+"_id", username = String.Format("{0}", name) };
+            await usersTable.InsertAsync(onlineUser);
+            var onlineUsers = await usersTable.Take(100).ToCollectionAsync();
+            ListUsers.ItemsSource = onlineUsers;
         }
 
         // Inserts a new chat item to the conversation by posting it in the Azure Mobile 
