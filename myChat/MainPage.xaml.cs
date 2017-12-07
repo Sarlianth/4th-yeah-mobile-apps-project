@@ -18,6 +18,10 @@ using System.Linq;
 using Windows.ApplicationModel;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Net.Http;
 
 namespace myChat
 {
@@ -201,12 +205,14 @@ namespace myChat
                     Login.Visibility = Visibility.Collapsed;
                     Lgout.Visibility = Visibility.Visible;
                     ListItems.Visibility = Visibility.Visible;
+                    ListUsers.Visibility = Visibility.Visible;
                 }
                 else if (!isEnabled)
                 {
                     Login.Visibility = Visibility.Visible;
                     Lgout.Visibility = Visibility.Collapsed;
                     ListItems.Visibility = Visibility.Collapsed;
+                    ListUsers.Visibility = Visibility.Collapsed;
                 }
                 if (dispatcherTimer.IsEnabled)
                 {
@@ -363,11 +369,30 @@ namespace myChat
             string msg = TextInput.Text.Trim();
             if (isLoggedin && msg.Length > 0)
             {
-                var chatItem = new ChatItem { Text = msg, UserName = String.Format("{0}", userUniqueID), TimeStamp = DateTime.UtcNow };
+                DateTimeOffset myDTO = (DateTimeOffset) GetCurrentTime();
+                DateTime utc = myDTO.UtcDateTime;
+                var chatItem = new ChatItem { Text = msg, UserName = String.Format("{0}", userUniqueID), TimeStamp = utc };
                 //lastChatline = chatItem.Text;
                 InsertChatItem(chatItem);
                 TextInput.Text = "";
                 //RefreshChatItems();
+            }
+        }
+
+        public static DateTimeOffset? GetCurrentTime()
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var result = client.GetAsync("https://google.com",
+                            HttpCompletionOption.ResponseHeadersRead).Result;
+                    return result.Headers.Date;
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
 
