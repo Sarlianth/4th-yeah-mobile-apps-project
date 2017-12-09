@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>myChat_StoreKey.pfx</PackageCertificateKeyFile>
     <PackageCertificateThumbprint>B720EF16FFEE6794597BF018F55C835987FC6389</PackageCertificateThumbprint>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
   </PropertyGroup>
@@ -119,6 +119,7 @@
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\icon\login.png" />
     <Content Include="Assets\icon\logout.png" />
+    <Content Include="Assets\icon\online.png" />
     <Content Include="Assets\icon\refresh.png" />
     <Content Include="Assets\icon\send.png" />
     <Content Include="Properties\Default.rd.xml" />

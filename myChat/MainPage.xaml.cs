@@ -16,6 +16,7 @@ using winsdkfb.Graph;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using Windows.Media.SpeechSynthesis;
 
 namespace myChat
 {
@@ -26,13 +27,16 @@ namespace myChat
         //int lastCount = 0;
         private MobileServiceCollection<ChatItem, ChatItem> items;
         private IMobileServiceTable<ChatItem> chatTable = App.MobileService.GetTable<ChatItem>();
-
+        
         private IMobileServiceTable<OnlineUsers> usersTable = App.MobileService.GetTable<OnlineUsers>();
 
         public PushNotificationChannel PushChannel;
         //DispatcherTimer dispatcherTimer = new DispatcherTimer();
         private static Random rnd = new Random();
         private int randomID = rnd.Next();
+        FBUser user;
+
+        MediaElement mediaplayer = new MediaElement();
 
         public MainPage()
         {
@@ -87,7 +91,7 @@ namespace myChat
             // Login to Facebook
             FBResult result = await sess.LoginAsync(permissions);
 
-            FBUser user = sess.User;
+            user = sess.User;
 
             if (result.Succeeded)
             {
@@ -390,6 +394,28 @@ namespace myChat
             {
                 SendChatLine();
             }
+        }
+
+        private async void ReadText(string mytext)
+        {
+            using (var speech = new SpeechSynthesizer())
+            {
+                speech.Voice = SpeechSynthesizer.AllVoices
+                            .First(i => (i.Gender == VoiceGender.Female && i.Description.Contains("United States")));
+
+                var voiceStream = await speech.SynthesizeTextToStreamAsync(mytext);
+
+                mediaplayer.SetSource(voiceStream, voiceStream.ContentType);
+                mediaplayer.Play();
+            }
+        }
+
+        private void Lvit_tapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            StackPanel sp = sender as StackPanel;
+            TextBlock tb = sp.FindName("ChatLine") as TextBlock;
+            ReadText(tb.Text);
+
         }
     }
 }

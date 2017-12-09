@@ -20,7 +20,6 @@ namespace myChat
         public const string FacebookAppID = "517130681996083";
         public const string WindowsStoreID = "S-1-15-2-3671549834-2253290178-112162265-1390719193-1420205262-4050387950-1987153425";
 
-
         // Details for support
         public const string DeveloperSupportEmail = "g00309646@gmit.ie";
     }

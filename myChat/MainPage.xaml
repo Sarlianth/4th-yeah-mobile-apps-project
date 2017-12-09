@@ -53,11 +53,10 @@
                 <ListView Grid.Row="1" Grid.Column="0" Name="ListItems" Margin="5" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsTabStop="True" TabIndex="0">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel HorizontalAlignment="Left">
+                            <StackPanel Name="stackPanel" DoubleTapped="Lvit_tapped" HorizontalAlignment="Left" >
                                 <TextBlock Name="ChatUser" Text="{Binding UserName}" Foreground="#0094ff" Margin="0,5,0,0" FontSize="14" TextWrapping="Wrap"/>
                                 <TextBlock Name="ChatUStamp" Text="{Binding TimeStamp}" Foreground="Gray" Margin="0,0,0,5" FontSize="10" TextWrapping="Wrap"/>
                                 <TextBlock Name="ChatLine" Text="{Binding Text}" Foreground="Black" Margin="0,0,0,5" FontSize="14" TextWrapping="Wrap"/>
-
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -66,7 +65,7 @@
                 <ListView Grid.Row="1" Grid.Column="1" Name="ListUsers" Margin="0,20,0,0" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsTabStop="True" TabIndex="0">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel HorizontalAlignment="Left">
+                            <StackPanel HorizontalAlignment="Right">
                                 <TextBlock Name="OnlineUser" Text="{Binding username}" Foreground="Black" Margin="0,5,0,0" FontSize="14" TextWrapping="Wrap"/>
                             </StackPanel>
                         </DataTemplate>
